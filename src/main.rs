@@ -298,6 +298,7 @@ fn main() {
             eprintln!("foreground changed: {}", foreground);
             #[cfg(feature = "cirrus")]
             if config.bypass_cirrus_dsp {
+                eprintln!("restore cirrus dsp");
                 switch_cirrus_dsp(false);
             }
             thread::sleep(Duration::from_secs(5));
@@ -335,6 +336,7 @@ fn main() {
                 #[cfg(feature = "cirrus")]
                 if in_whitelist {
                     if config.bypass_cirrus_dsp {
+                        eprintln!("bypass cirrus dsp");
                         switch_cirrus_dsp(true);
                     }
                 }

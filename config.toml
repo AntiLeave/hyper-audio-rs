@@ -1,4 +1,4 @@
-# 支持实时应用 support real-time applications
+# 支持实时修改 support real-time modification
 enable = true
 only_whitelist = false
 # feature = cirrus

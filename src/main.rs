@@ -252,12 +252,12 @@ fn switch_cirrus_dsp(bypass_dsp: bool) {
         .args([
             "B PCM Source",
             if bypass_dsp { "ASPRX1" } else { "DSP" },
-        ]);
+        ]).output();
     let _ = Command::new("tinymix")
         .args([
             "T PCM Source",
             if bypass_dsp { "ASPRX1" } else { "DSP" },
-        ]);
+        ]).output();
 }
 
 #[derive(Deserialize)]

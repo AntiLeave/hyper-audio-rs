@@ -329,12 +329,14 @@ fn main() {
                         BoostTidRule { process: "audiohalservice.qti", threads: "low_latency_out|raw_out_.*|mmap_no_irq_out" },
                         BoostTidRule { process: &foreground,           threads: "AudioTrack|AAudio_.*|FMOD mixer.*" },
                     ]);
-                    #[cfg(feature = "cirrus")]
+                    #[cfg(feature = "debug")]
+                    eprintln!("audio elapsed: {:?}", start.elapsed());
+                }
+                #[cfg(feature = "cirrus")]
+                if in_whitelist {
                     if config.bypass_cirrus_dsp {
                         switch_cirrus_dsp(true);
                     }
-                    #[cfg(feature = "debug")]
-                    eprintln!("audio elapsed: {:?}", start.elapsed());
                 }
             }
         }

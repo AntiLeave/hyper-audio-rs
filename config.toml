@@ -1,0 +1,30 @@
+enable = true
+only_whitelist = false
+
+whitelist = [
+    "com.hlmc.phire",
+    "org.flos.phira",
+    "com.TeamPhigrim.Phigrim",
+    "game.taptap.TeamPhigrim.Phigrim",
+    "com.PigeonGames.Phigros",
+    "com.PigeonGames.Rizline",
+    "moe.low.arc",
+    "com.Arcthesia.ArcCreate",
+    "com.tunergames.paradigm",
+    "com.prpr.musedash.TapTap",
+    "com.ilongyuan.cytus2.ly.TapTap",
+    "game.taptap.ryceam",
+    "game.taptap.morizero.milthm",
+    "game.taptap.zzzProject.Notanote",
+    "game.taptap.rainyac.ukiyo",
+    "com.xd.rotaeno.tapcn",
+    "com.Noxygames.Lanota",
+    "com.gmzon.taptap.lanota",
+    "com.hermes.mk",
+    "me.mugzone.emiria",
+    "com.Reflektone.AstroDX",
+    "app.KanadeDX",
+    "net.majdata.majdataplay",
+    "com.coweye.musync.android",
+    "com.blp.bleapcn"
+]

@@ -1,0 +1,19 @@
+[package]
+name = "hyper-audio"
+version = "0.1.0"
+edition = "2024"
+
+[features]
+default = []
+debug = []
+
+[profile.release]
+opt-level = 3
+strip = true
+lto = true
+
+[dependencies]
+regex = "1"
+libc = "0.2"
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"

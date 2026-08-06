@@ -2,12 +2,15 @@ enable = true
 only_whitelist = false
 
 whitelist = [
+    "com.android.cts.verifier",
+    "com.mobileer.oboetester",
     "com.hlmc.phire",
     "org.flos.phira",
     "com.TeamPhigrim.Phigrim",
     "game.taptap.TeamPhigrim.Phigrim",
     "com.PigeonGames.Phigros",
     "com.PigeonGames.Rizline",
+    "com.leiting.ldgj",
     "moe.low.arc",
     "com.Arcthesia.ArcCreate",
     "com.tunergames.paradigm",

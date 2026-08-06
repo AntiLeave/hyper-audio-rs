@@ -296,6 +296,10 @@ fn main() {
     let mut prev_foreground = String::new();
 
     loop {
+        while !is_screen_on() {
+            thread::sleep(Duration::from_secs(5));
+        }
+
         let current_modified = config_modified();
         if current_modified.is_some() && current_modified != last_modified {
             last_modified = current_modified;
@@ -368,9 +372,5 @@ fn main() {
         }
 
         thread::sleep(Duration::from_secs(1));
-
-        while !is_screen_on() {
-            thread::sleep(Duration::from_secs(5));
-        }
     }
 }

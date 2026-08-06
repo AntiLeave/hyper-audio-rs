@@ -1,3 +1,4 @@
+# hyper-audio-rs configuration file
 # 支持实时修改 support real-time modification
 enable = true
 only_whitelist = false

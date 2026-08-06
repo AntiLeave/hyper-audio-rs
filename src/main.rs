@@ -367,7 +367,7 @@ fn main() {
             }
         }
 
-        thread::sleep(Duration::from_secs(2));
+        thread::sleep(Duration::from_secs(1));
 
         while !is_screen_on() {
             thread::sleep(Duration::from_secs(5));

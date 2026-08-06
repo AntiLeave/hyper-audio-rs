@@ -6,6 +6,7 @@ edition = "2024"
 [features]
 default = []
 debug = []
+cirrus = []
 
 [profile.release]
 opt-level = 3

@@ -246,11 +246,28 @@ fn is_screen_on() -> bool {
     stdout.contains("true")
 }
 
+#[cfg(feature = "cirrus")]
+fn switch_cirrus_dsp(bypass_dsp: bool) {
+    let _ = Command::new("tinymix")
+        .args([
+            "B PCM Source",
+            if bypass_dsp { "ASPRX1" } else { "DSP" },
+        ]);
+    let _ = Command::new("tinymix")
+        .args([
+            "T PCM Source",
+            if bypass_dsp { "ASPRX1" } else { "DSP" },
+        ]);
+}
+
 #[derive(Deserialize)]
 struct Config {
     enable: bool,
     #[serde(default)]
     only_whitelist: bool,
+    #[cfg(feature = "cirrus")]
+    #[serde(default)]
+    bypass_cirrus_dsp: bool,
     #[serde(default)]
     whitelist: Vec<String>,
 }
@@ -279,6 +296,10 @@ fn main() {
         if !foreground.is_empty() && foreground != prev_foreground {
             prev_foreground = foreground.clone();
             eprintln!("foreground changed: {}", foreground);
+            #[cfg(feature = "cirrus")]
+            if config.bypass_cirrus_dsp {
+                switch_cirrus_dsp(false);
+            }
             thread::sleep(Duration::from_secs(5));
 
             #[cfg(feature = "debug")]
@@ -308,13 +329,17 @@ fn main() {
                         BoostTidRule { process: "audiohalservice.qti", threads: "low_latency_out|raw_out_.*|mmap_no_irq_out" },
                         BoostTidRule { process: &foreground,           threads: "AudioTrack|AAudio_.*|FMOD mixer.*" },
                     ]);
+                    #[cfg(feature = "cirrus")]
+                    if config.bypass_cirrus_dsp {
+                        switch_cirrus_dsp(true);
+                    }
                     #[cfg(feature = "debug")]
                     eprintln!("audio elapsed: {:?}", start.elapsed());
                 }
             }
         }
 
-        thread::sleep(Duration::from_secs(5));
+        thread::sleep(Duration::from_secs(2));
 
         while !is_screen_on() {
             thread::sleep(Duration::from_secs(5));

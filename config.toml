@@ -1,3 +1,4 @@
+# 支持实时应用 support real-time applications
 enable = true
 only_whitelist = false
 # feature = cirrus

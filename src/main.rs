@@ -1,6 +1,8 @@
 use serde::Deserialize;
 use std::env;
 use std::fs;
+use std::path::PathBuf;
+use std::time::SystemTime;
 use std::process::{Command, Stdio};
 use std::thread;
 use std::time::Duration;
@@ -272,25 +274,47 @@ struct Config {
     whitelist: Vec<String>,
 }
 
-fn load_config() -> Option<Config> {
+fn config_path() -> Option<PathBuf> {
     let dir = env::current_exe().ok()?.parent()?.to_path_buf();
-    let path = dir.join("config.toml");
+    Some(dir.join("config.toml"))
+}
+
+fn load_config() -> Option<Config> {
+    let path = config_path()?;
     let content = fs::read_to_string(&path).ok()?;
     toml::from_str(&content).ok()
 }
 
-fn main() {
-    let config = match load_config() {
-        Some(c) if c.enable => c,
-        _ => {
-            eprintln!("config.toml not found or enable=false, exiting");
-            return;
-        }
-    };
+fn config_modified() -> Option<SystemTime> {
+    let path = config_path()?;
+    fs::metadata(&path).ok()?.modified().ok()
+}
 
+fn main() {
+    let mut config: Option<Config> = None;
+    let mut last_modified: Option<SystemTime> = None;
     let mut prev_foreground = String::new();
 
     loop {
+        let current_modified = config_modified();
+        if current_modified.is_some() && current_modified != last_modified {
+            last_modified = current_modified;
+            config = load_config();
+            if let Some(ref c) = config {
+                eprintln!("config.toml reloaded (enable={})", c.enable);
+            } else {
+                eprintln!("config.toml reloaded (invalid format)");
+            }
+        }
+
+        let config = match config {
+            Some(ref c) if c.enable => c,
+            _ => {
+                thread::sleep(Duration::from_secs(5));
+                continue;
+            }
+        };
+
         let foreground = get_foreground_activity().unwrap_or_default();
 
         if !foreground.is_empty() && foreground != prev_foreground {

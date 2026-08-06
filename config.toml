@@ -1,5 +1,6 @@
 enable = true
 only_whitelist = false
+bypass_cirrus_dsp = true # feature = "cirrus"
 
 whitelist = [
     "com.android.cts.verifier",

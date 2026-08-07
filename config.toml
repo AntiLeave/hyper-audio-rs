@@ -2,7 +2,9 @@
 # 支持实时修改 support real-time modification
 enable = true
 only_whitelist = false
-priority = 20
+audio_priority = 16
+hal_priority = 20
+app_priority = 15
 
 whitelist = [
     "com.android.cts.verifier",

@@ -57,15 +57,16 @@ fn boost(pattern: &str) {
 struct BoostTidRule<'a> {
     process: &'a str,
     threads: &'a str,
+    priority: i32,
 }
 
-fn boost_tid(rules: &[BoostTidRule<'_>], priority: i32) {
-    let compiled: Vec<(regex::Regex, regex::Regex)> = rules
+fn boost_tid(rules: &[BoostTidRule<'_>]) {
+    let compiled: Vec<(regex::Regex, regex::Regex, i32)> = rules
         .iter()
         .filter_map(|r| {
             let pr = regex::Regex::new(r.process).ok()?;
             let tr = regex::Regex::new(&format!("^(?:{})$", r.threads)).ok()?;
-            Some((pr, tr))
+            Some((pr, tr, r.priority))
         })
         .collect();
 
@@ -85,9 +86,9 @@ fn boost_tid(rules: &[BoostTidRule<'_>], priority: i32) {
             Err(_) => continue,
         };
 
-        let matching_thread_res: Vec<&regex::Regex> = compiled
+        let matching_thread_res: Vec<(&regex::Regex, i32)> = compiled
             .iter()
-            .filter_map(|(pr, tr)| pr.is_match(&cmdline).then_some(tr))
+            .filter_map(|(pr, tr, p)| pr.is_match(&cmdline).then_some((tr, *p)))
             .collect();
 
         if matching_thread_res.is_empty() {
@@ -109,11 +110,10 @@ fn boost_tid(rules: &[BoostTidRule<'_>], priority: i32) {
                 Err(_) => continue,
             };
             let comm = comm.trim();
-            if !matching_thread_res.iter().any(|r| r.is_match(comm)) {
-                continue;
+            if let Some((_, priority)) = matching_thread_res.iter().find(|(r, _)| r.is_match(comm)) {
+                let _ = fs::write("/dev/cpuset/top-app/tasks", format!("{}\n", tid));
+                set_realtime_priority(tid, *priority);
             }
-            let _ = fs::write("/dev/cpuset/top-app/tasks", format!("{}\n", tid));
-            set_realtime_priority(tid, priority);
         }
     }
 }
@@ -275,7 +275,11 @@ struct Config {
     #[serde(default)]
     only_whitelist: bool,
     #[serde(default)]
-    priority: i32,
+    audio_priority: i32,
+    #[serde(default)]
+    hal_priority: i32,
+    #[serde(default)]
+    app_priority: i32,
     #[cfg(feature = "cirrus")]
     #[serde(default)]
     bypass_cirrus_dsp: bool,
@@ -363,10 +367,10 @@ fn main() {
                     #[cfg(feature = "debug")]
                     let start = Instant::now();
                     boost_tid(&[
-                        BoostTidRule { process: "audioserver",         threads: "FastMixer|Audio.*Out_.*|AAudio_.*|binder:.*" },
-                        BoostTidRule { process: "audiohalservice.qti", threads: "low_latency_out|raw_out_.*|mmap_no_irq_out" },
-                        BoostTidRule { process: &foreground,           threads: "AudioTrack|AAudio_.*|FMOD mixer.*|FMOD stream.*" },
-                    ], config.priority);
+                        BoostTidRule { process: "audioserver",         threads: "FastMixer|Audio.*Out_.*|AAudio_.*|binder:.*",       priority: config.audio_priority },
+                        BoostTidRule { process: "audiohalservice.qti", threads: "low_latency_out|raw_out_.*|mmap_no_irq_out",      priority: config.hal_priority },
+                        BoostTidRule { process: &foreground,           threads: "AudioTrack|AAudio_.*|FMOD mixer.*|FMOD stream.*", priority: config.app_priority },
+                    ]);
                     #[cfg(feature = "debug")]
                     eprintln!("audio elapsed: {:?}", start.elapsed());
                 }

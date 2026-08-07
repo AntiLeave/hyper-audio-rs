@@ -25,17 +25,21 @@ fn pgrep_f(pattern: &str) -> Vec<i32> {
         .collect()
 }
 
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "android"))]
 fn set_realtime_priority(pid: i32, prio: i32) {
     unsafe {
         let param = libc::sched_param {
             sched_priority: prio,
         };
-        libc::sched_setscheduler(pid, libc::SCHED_FIFO, &param);
+        let ret = libc::sched_setscheduler(pid, libc::SCHED_FIFO, &param);
+        if ret != 0 {
+            let err = *libc::__errno();
+            eprintln!("sched_setscheduler({}, SCHED_FIFO, {}) failed: errno={}", pid, prio, err);
+        }
     }
 }
 
-#[cfg(not(target_os = "linux"))]
+#[cfg(not(any(target_os = "linux", target_os = "android")))]
 fn set_realtime_priority(_pid: i32, _prio: i32) {}
 
 #[allow(dead_code)]

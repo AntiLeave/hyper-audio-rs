@@ -365,7 +365,7 @@ fn main() {
                     boost_tid(&[
                         BoostTidRule { process: "audioserver",         threads: "FastMixer|Audio.*Out_.*|AAudio_.*|binder:.*" },
                         BoostTidRule { process: "audiohalservice.qti", threads: "low_latency_out|raw_out_.*|mmap_no_irq_out" },
-                        BoostTidRule { process: &foreground,           threads: "AudioTrack|AAudio_.*|FMOD mixer.*" },
+                        BoostTidRule { process: &foreground,           threads: "AudioTrack|AAudio_.*|FMOD mixer.*|FMOD stream.*" },
                     ], config.priority);
                     #[cfg(feature = "debug")]
                     eprintln!("audio elapsed: {:?}", start.elapsed());

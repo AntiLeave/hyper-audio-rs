@@ -4,9 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [features]
-default = []
+default = ["priority"]
 debug = []
 cirrus = []
+priority = []
 
 [profile.release]
 opt-level = 3

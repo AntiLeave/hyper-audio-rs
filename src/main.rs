@@ -25,7 +25,7 @@ fn pgrep_f(pattern: &str) -> Vec<i32> {
         .collect()
 }
 
-#[cfg(any(target_os = "linux", target_os = "android"))]
+#[cfg(all(any(target_os = "linux", target_os = "android"), feature = "priority"))]
 fn set_realtime_priority(pid: i32, prio: i32) {
     unsafe {
         let param = libc::sched_param {
@@ -39,7 +39,7 @@ fn set_realtime_priority(pid: i32, prio: i32) {
     }
 }
 
-#[cfg(not(any(target_os = "linux", target_os = "android")))]
+#[cfg(not(all(any(target_os = "linux", target_os = "android"), feature = "priority")))]
 fn set_realtime_priority(_pid: i32, _prio: i32) {}
 
 #[allow(dead_code)]
@@ -110,7 +110,7 @@ fn boost_tid(rules: &[BoostTidRule<'_>]) {
                 continue;
             }
             let _ = fs::write("/dev/cpuset/top-app/tasks", format!("{}\n", tid));
-            set_realtime_priority(tid, 10);
+            set_realtime_priority(tid, 20);
         }
     }
 }

@@ -2,10 +2,6 @@
 # 支持实时修改 support real-time modification
 enable = true
 only_whitelist = false
-# feature = cirrus
-# 白名单内的应用绕过 DSP 获得最低延时，但影响听感
-# Whitelisted applications bypass the DSP to achieve the lowest latency, but this affects the listening experience.
-bypass_cirrus_dsp = false
 
 whitelist = [
     "com.android.cts.verifier",

@@ -2,6 +2,7 @@
 # 支持实时修改 support real-time modification
 enable = true
 only_whitelist = false
+priority = 20
 
 whitelist = [
     "com.android.cts.verifier",

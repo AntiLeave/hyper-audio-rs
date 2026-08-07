@@ -27,6 +27,9 @@ fn pgrep_f(pattern: &str) -> Vec<i32> {
 
 #[cfg(all(any(target_os = "linux", target_os = "android"), feature = "priority"))]
 fn set_realtime_priority(pid: i32, prio: i32) {
+    if prio == 0 {
+        return;
+    }
     unsafe {
         let param = libc::sched_param {
             sched_priority: prio,
@@ -56,7 +59,7 @@ struct BoostTidRule<'a> {
     threads: &'a str,
 }
 
-fn boost_tid(rules: &[BoostTidRule<'_>]) {
+fn boost_tid(rules: &[BoostTidRule<'_>], priority: i32) {
     let compiled: Vec<(regex::Regex, regex::Regex)> = rules
         .iter()
         .filter_map(|r| {
@@ -110,7 +113,7 @@ fn boost_tid(rules: &[BoostTidRule<'_>]) {
                 continue;
             }
             let _ = fs::write("/dev/cpuset/top-app/tasks", format!("{}\n", tid));
-            set_realtime_priority(tid, 20);
+            set_realtime_priority(tid, priority);
         }
     }
 }
@@ -271,6 +274,8 @@ struct Config {
     enable: bool,
     #[serde(default)]
     only_whitelist: bool,
+    #[serde(default)]
+    priority: i32,
     #[cfg(feature = "cirrus")]
     #[serde(default)]
     bypass_cirrus_dsp: bool,
@@ -361,7 +366,7 @@ fn main() {
                         BoostTidRule { process: "audioserver",         threads: "FastMixer|Audio.*Out_.*|AAudio_.*|binder:.*" },
                         BoostTidRule { process: "audiohalservice.qti", threads: "low_latency_out|raw_out_.*|mmap_no_irq_out" },
                         BoostTidRule { process: &foreground,           threads: "AudioTrack|AAudio_.*|FMOD mixer.*" },
-                    ]);
+                    ], config.priority);
                     #[cfg(feature = "debug")]
                     eprintln!("audio elapsed: {:?}", start.elapsed());
                 }
